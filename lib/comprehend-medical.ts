@@ -50,7 +50,22 @@ export const COMPREHEND_MAX_INPUT_LENGTH = 20_000;
 
 export function getComprehendMedicalClient(): ComprehendMedicalClient {
   const region = process.env.AWS_REGION || "us-east-1";
-  return new ComprehendMedicalClient({ region });
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error(
+      "AWS credentials not configured. Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables."
+    );
+  }
+
+  return new ComprehendMedicalClient({
+    region,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+  });
 }
 
 export async function detectPhi(text: string) {
