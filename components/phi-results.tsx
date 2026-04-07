@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -110,8 +109,8 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Stethoscope className="h-4 w-4" />
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Stethoscope className="h-4 w-4 text-[#01473B]" />
               Redacted text
             </CardTitle>
             <div className="flex flex-wrap gap-2">
@@ -153,7 +152,7 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
                 : "For .docx uploads, “keep layout” appears when the file is supported; otherwise use “new file” for a simple .docx from redacted text only."}
             </span>
             {result.extractWarnings?.length ? (
-              <span className="block mt-1 text-amber-700 dark:text-amber-400">
+              <span className="block mt-1 text-[#DD7523] dark:text-[#FFB300]">
                 Warnings: {result.extractWarnings.join(" · ")}
               </span>
             ) : null}
@@ -161,7 +160,7 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[220px] w-full rounded-md border p-3">
-            <pre className="text-xs whitespace-pre-wrap font-mono leading-relaxed">
+            <pre className="text-sm whitespace-pre-wrap font-sans leading-[1.45] text-[#262626]">
               {result.redactedText}
             </pre>
           </ScrollArea>
@@ -170,8 +169,8 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <ListTree className="h-4 w-4" />
+          <CardTitle className="text-lg flex items-center gap-2">
+            <ListTree className="h-4 w-4 text-[#01473B]" />
             Detected PHI entities ({result.entities.length})
           </CardTitle>
           <p className="text-xs text-muted-foreground font-normal">
@@ -180,19 +179,23 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
             guidance.
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-h-0">
           {result.entities.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No PHI entities returned for this text.
             </p>
           ) : (
-            <ScrollArea className="max-h-[min(20rem,50vh)] rounded-md border">
-              <Table>
-                <TableHeader>
+            <div
+              className="max-h-[min(24rem,55vh)] overflow-auto rounded-md border overscroll-y-contain"
+              role="region"
+              aria-label="Detected PHI entities list"
+            >
+              <table className="w-full caption-bottom text-sm">
+                <TableHeader className="sticky top-0 z-[1] bg-card shadow-[inset_0_-1px_0_0_var(--border)]">
                   <TableRow>
-                    <TableHead className="w-[140px]">Type</TableHead>
-                    <TableHead>Snippet</TableHead>
-                    <TableHead className="w-[72px] text-right">
+                    <TableHead className="w-[140px] bg-card">Type</TableHead>
+                    <TableHead className="bg-card">Snippet</TableHead>
+                    <TableHead className="w-[72px] text-right bg-card">
                       Score
                     </TableHead>
                   </TableRow>
@@ -205,7 +208,7 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
                           {e.type || "PHI"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="max-w-[240px] truncate text-xs font-mono">
+                      <TableCell className="max-w-[240px] truncate text-xs font-sans text-[#262626]">
                         {e.text ?? "—"}
                       </TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground">
@@ -216,8 +219,8 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
-            </ScrollArea>
+              </table>
+            </div>
           )}
         </CardContent>
       </Card>

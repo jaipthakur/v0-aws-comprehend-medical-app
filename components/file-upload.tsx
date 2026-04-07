@@ -113,7 +113,7 @@ export function FileUpload({ onAnalyzeComplete, disabled }: FileUploadProps) {
   };
 
   return (
-    <Card className="border-2 border-dashed border-border/50 bg-muted/20">
+    <Card className="border-2 border-dashed border-[color-mix(in_srgb,var(--wl-dark-green)_28%,var(--border))] bg-[color-mix(in_srgb,var(--wl-off-white)_65%,white)]">
       <CardContent className="p-6">
         <div
           onDragOver={handleDragOver}
