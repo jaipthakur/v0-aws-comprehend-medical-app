@@ -3,8 +3,10 @@ import {
   applyPhiRedaction,
   COMPREHEND_MAX_INPUT_LENGTH,
   detectPhi,
+  detectPhiResponseToApiJson,
 } from "@/lib/comprehend-medical";
 import { extractClinicalText } from "@/lib/extract-clinical-text";
+import { tryRedactDocxPreservingFormatting } from "@/lib/docx-inplace-redact";
 
 export const runtime = "nodejs";
 
@@ -25,7 +27,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: extracted.error }, { status: 400 });
     }
 
-    let text = extracted.text.replace(/\r\n/g, "\n").trim();
+    /* No trim: Comprehend offsets must match the same string we map in .docx XML. */
+    let text = extracted.text.replace(/\r\n/g, "\n");
     if (text.length > COMPREHEND_MAX_INPUT_LENGTH) {
       return NextResponse.json(
         {
@@ -47,12 +50,28 @@ export async function POST(request: NextRequest) {
       endOffset: e.EndOffset,
     }));
 
+    const phiApiResponse = detectPhiResponseToApiJson(phiResponse);
+
+    let redactedDocxBase64: string | undefined;
+    if (file.name.toLowerCase().endsWith(".docx")) {
+      const inplace = await tryRedactDocxPreservingFormatting(
+        buffer,
+        entities,
+        text
+      );
+      if (inplace.ok) {
+        redactedDocxBase64 = inplace.buffer.toString("base64");
+      }
+    }
+
     return NextResponse.json({
       success: true,
       originalName: file.name,
       redactedText,
       entities: entityPayload,
+      phiApiResponse,
       extractWarnings: extracted.warnings,
+      ...(redactedDocxBase64 ? { redactedDocxBase64 } : {}),
     });
   } catch (error) {
     console.error("Analyze error:", error);

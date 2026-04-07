@@ -5,6 +5,7 @@ import { Upload, File, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import type { DetectPhiApiExport } from "@/lib/detect-phi-export-types";
 
 export interface PhiEntityRow {
   type?: string;
@@ -18,7 +19,11 @@ export interface AnalyzeResult {
   originalName: string;
   redactedText: string;
   entities: PhiEntityRow[];
+  /** DetectPHI-shaped payload (Entities, UnmappedAttributes, ModelVersion, …). */
+  phiApiResponse: DetectPhiApiExport;
   extractWarnings?: string[];
+  /** Server-built .docx with PHI replaced inside the original package (when supported). */
+  redactedDocxBase64?: string;
 }
 
 interface FileUploadProps {
@@ -94,7 +99,9 @@ export function FileUpload({ onAnalyzeComplete, disabled }: FileUploadProps) {
         originalName: data.originalName,
         redactedText: data.redactedText,
         entities: data.entities || [],
+        phiApiResponse: data.phiApiResponse,
         extractWarnings: data.extractWarnings,
+        redactedDocxBase64: data.redactedDocxBase64,
       });
 
       setFile(null);

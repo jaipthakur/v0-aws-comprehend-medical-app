@@ -2,7 +2,48 @@ import {
   ComprehendMedicalClient,
   DetectPHICommand,
   type Entity,
+  type UnmappedAttribute,
 } from "@aws-sdk/client-comprehendmedical";
+
+import type { DetectPhiApiExport } from "./detect-phi-export-types";
+
+export type { DetectPhiApiExport };
+
+/**
+ * Build a plain object suitable for JSON download (no AWS SDK metadata).
+ * <code>UnmappedAttributes</code> is included for parity with API samples; DetectPHI often returns an empty array.
+ */
+export function detectPhiResponseToApiJson(output: {
+  Entities?: Entity[] | undefined;
+  ModelVersion?: string | undefined;
+  PaginationToken?: string | undefined;
+  UnmappedAttributes?: UnmappedAttribute[] | undefined;
+}): DetectPhiApiExport {
+  const entities = output.Entities ?? [];
+  return {
+    Entities: entities.map((e) => {
+      const row: Record<string, unknown> = {
+        Id: e.Id,
+        BeginOffset: e.BeginOffset,
+        EndOffset: e.EndOffset,
+        Score: e.Score,
+        Text: e.Text,
+        Category: e.Category,
+        Type: e.Type,
+        Traits: e.Traits ?? [],
+      };
+      if (e.Attributes?.length) {
+        row.Attributes = e.Attributes;
+      }
+      return row;
+    }),
+    UnmappedAttributes: output.UnmappedAttributes ?? [],
+    ModelVersion: output.ModelVersion,
+    ...(output.PaginationToken
+      ? { PaginationToken: output.PaginationToken }
+      : {}),
+  };
+}
 
 /** Amazon Comprehend Medical synchronous text limit (Unicode characters). */
 export const COMPREHEND_MAX_INPUT_LENGTH = 20_000;

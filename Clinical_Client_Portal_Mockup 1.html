@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welocalize — Clinical Client Portal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Noto+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --primary-text: #262626;
+    --white: #FFFFFF;
+    --deep-blue: #1A5979;
+    --off-white: #F3F3F5;
+    --dark-green: #01473B;
+    --blue: #077AB5;
+    --green: #379C4F;
+    --teal: #05E1C7;
+    --orange: #DD7523;
+    --gold: #FFB300;
+    --sidebar-w: 260px;
+    --header-h: 64px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Noto Sans', sans-serif;
+    color: var(--primary-text);
+    background: var(--off-white);
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: fixed; top:0; left:0; bottom:0;
+    width: var(--sidebar-w);
+    background: linear-gradient(180deg, var(--dark-green) 0%, #012E27 100%);
+    color: var(--white);
+    display: flex; flex-direction: column;
+    z-index: 100;
+  }
+  .sidebar-brand {
+    padding: 22px 24px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .sidebar-brand .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--teal);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 18px; color: var(--dark-green);
+  }
+  .sidebar-brand span {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 15px; letter-spacing: .3px;
+  }
+  .sidebar-brand small {
+    display: block; font-size: 10px; font-weight: 500;
+    color: rgba(255,255,255,.6); letter-spacing: .5px; text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .sidebar-nav { flex:1; padding: 18px 0; overflow-y:auto; }
+  .nav-section-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; color: rgba(255,255,255,.4);
+    padding: 12px 24px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 24px; cursor: pointer;
+    font-size: 13.5px; font-weight: 500;
+    color: rgba(255,255,255,.72);
+    transition: all .15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: var(--white); }
+  .nav-item.active {
+    background: rgba(5,225,199,.08);
+    color: var(--teal);
+    border-left-color: var(--teal);
+  }
+  .nav-item svg { width:18px; height:18px; flex-shrink:0; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 10px;
+  }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255,255,255,.1);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--blue); display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: var(--white);
+  }
+  .sidebar-footer .user-info { font-size: 12px; }
+  .sidebar-footer .user-info strong { display: block; font-size: 13px; }
+  .sidebar-footer .user-info span { color: rgba(255,255,255,.5); }
+
+  /* ─── MAIN ─── */
+  .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+
+  /* ─── HEADER ─── */
+  .header {
+    height: var(--header-h);
+    background: var(--white);
+    border-bottom: 1px solid #E2E2E6;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    position: sticky; top:0; z-index: 50;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-left h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px; font-weight: 700; color: var(--primary-text);
+  }
+  .breadcrumb { font-size: 12px; color: #888; }
+  .breadcrumb a { color: var(--blue); text-decoration: none; }
+
+  .header-right { display: flex; align-items: center; gap: 18px; }
+  .header-btn {
+    background: none; border: none; cursor: pointer;
+    color: #777; position: relative;
+  }
+  .header-btn svg { width: 20px; height: 20px; }
+  .notif-dot {
+    position: absolute; top: -2px; right: -2px;
+    width: 8px; height: 8px; background: var(--orange);
+    border-radius: 50%; border: 2px solid var(--white);
+  }
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--off-white); border: 1px solid #E2E2E6;
+    border-radius: 8px; padding: 7px 14px; width: 280px;
+  }
+  .search-bar input {
+    border: none; background: none; outline: none;
+    font-family: 'Noto Sans', sans-serif; font-size: 13px;
+    color: var(--primary-text); width: 100%;
+  }
+  .search-bar svg { width: 16px; height: 16px; color: #999; flex-shrink:0; }
+
+  /* ─── CONTENT ─── */
+  .content { padding: 28px 32px; }
+
+  /* ── Module Tabs ── */
+  .module-tabs {
+    display: flex; gap: 4px; margin-bottom: 24px;
+    background: var(--white); border-radius: 10px;
+    padding: 4px; border: 1px solid #E2E2E6;
+    width: fit-content;
+  }
+  .module-tab {
+    padding: 8px 20px; border-radius: 7px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    color: #777; transition: all .15s;
+  }
+  .module-tab:hover { color: var(--primary-text); }
+  .module-tab.active {
+    background: var(--dark-green); color: var(--white);
+  }
+  .module-tab.disabled {
+    color: #C0C0C0; cursor: default;
+    position: relative;
+  }
+  .module-tab.disabled::after {
+    content: 'Soon'; font-size: 8px; font-weight: 700;
+    position: absolute; top: 2px; right: 4px;
+    color: var(--gold);
+  }
+
+  /* ── Stats Row ── */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--white); border-radius: 12px;
+    padding: 20px 22px; border: 1px solid #E8E8EC;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .stat-card .stat-label {
+    font-size: 11.5px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: .6px;
+  }
+  .stat-card .stat-value {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px; font-weight: 700;
+  }
+  .stat-card .stat-sub { font-size: 12px; color: #888; }
+  .stat-card .stat-sub .up { color: var(--green); font-weight: 600; }
+  .stat-card .stat-sub .down { color: var(--orange); font-weight: 600; }
+  .stat-accent-1 .stat-value { color: var(--dark-green); }
+  .stat-accent-2 .stat-value { color: var(--blue); }
+  .stat-accent-3 .stat-value { color: var(--orange); }
+  .stat-accent-4 .stat-value { color: var(--green); }
+
+  /* ── Action Bar ── */
+  .action-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .action-bar h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px; font-weight: 700;
+  }
+  .action-group { display: flex; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 8px;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: none; transition: all .15s;
+  }
+  .btn svg { width: 16px; height: 16px; }
+  .btn-primary {
+    background: var(--dark-green); color: var(--white);
+  }
+  .btn-primary:hover { background: #016B58; }
+  .btn-secondary {
+    background: var(--white); color: var(--primary-text);
+    border: 1px solid #D5D5DA;
+  }
+  .btn-secondary:hover { background: var(--off-white); }
+
+  /* ── Filters ── */
+  .filters {
+    display: flex; gap: 10px; margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--white); border: 1px solid #D5D5DA;
+    border-radius: 7px; padding: 6px 14px;
+    font-size: 12.5px; font-weight: 500; color: #555;
+    cursor: pointer; transition: all .12s;
+  }
+  .filter-chip:hover { border-color: var(--blue); color: var(--blue); }
+  .filter-chip.active-filter { border-color: var(--dark-green); color: var(--dark-green); background: rgba(1,71,59,.05); }
+  .filter-chip svg { width: 14px; height: 14px; }
+
+  /* ── Table ── */
+  .table-wrap {
+    background: var(--white); border-radius: 12px;
+    border: 1px solid #E8E8EC; overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-size: 11px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: .6px;
+    padding: 14px 18px; text-align: left;
+    background: #FAFAFE; border-bottom: 1px solid #E8E8EC;
+  }
+  tbody td {
+    padding: 14px 18px; font-size: 13.5px;
+    border-bottom: 1px solid #F0F0F4;
+    vertical-align: middle;
+  }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: rgba(1,71,59,.018); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .study-link {
+    color: var(--blue); font-weight: 600;
+    text-decoration: none; cursor: pointer;
+  }
+  .study-link:hover { text-decoration: underline; }
+
+  .doc-type { font-weight: 500; }
+  .doc-type small { color: #999; font-weight: 400; display: block; margin-top: 2px; }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 6px;
+    font-size: 11.5px; font-weight: 600;
+  }
+  .status-badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+  }
+  .status-in-progress { background: #EFF8FF; color: #0A6DC2; }
+  .status-in-progress .dot { background: #0A6DC2; }
+  .status-delivered { background: #EEFBF1; color: #1A7F37; }
+  .status-delivered .dot { background: #1A7F37; }
+  .status-review { background: #FFF8EB; color: #9A6700; }
+  .status-review .dot { background: #9A6700; }
+  .status-pending { background: #F5F5F7; color: #777; }
+  .status-pending .dot { background: #999; }
+  .status-submitted { background: #F0EDFF; color: #5B4FCF; }
+  .status-submitted .dot { background: #5B4FCF; }
+
+  .vendor-tag {
+    font-size: 11.5px; font-weight: 600;
+    padding: 3px 9px; border-radius: 5px;
+  }
+  .vendor-wl { background: rgba(1,71,59,.08); color: var(--dark-green); }
+  .vendor-tp { background: rgba(7,122,181,.08); color: var(--blue); }
+  .vendor-lb { background: rgba(221,117,35,.08); color: var(--orange); }
+  .vendor-local { background: #F5F5F7; color: #777; }
+
+  .langs { font-size: 12.5px; color: #555; }
+  .langs strong { color: var(--primary-text); }
+  .lang-count {
+    background: var(--off-white); font-size: 11px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px; color: #666;
+    margin-left: 4px;
+  }
+
+  .progress-mini {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .progress-bar-bg {
+    width: 80px; height: 6px; background: #ECECF0;
+    border-radius: 3px; overflow: hidden;
+  }
+  .progress-bar-fill { height: 100%; border-radius: 3px; }
+  .progress-pct { font-size: 12px; font-weight: 600; color: #555; min-width: 32px; }
+
+  /* ── Pagination ── */
+  .table-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-top: 1px solid #E8E8EC;
+    font-size: 12.5px; color: #888;
+  }
+  .pagination { display: flex; gap: 4px; }
+  .page-btn {
+    width: 30px; height: 30px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    background: none; border: 1px solid transparent; color: #666;
+  }
+  .page-btn:hover { background: var(--off-white); }
+  .page-btn.active-page { background: var(--dark-green); color: var(--white); border-color: var(--dark-green); }
+
+  /* ── New Request Modal Overlay ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 16px;
+    width: 520px; max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,.2);
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 28px; border-bottom: 1px solid #E8E8EC;
+  }
+  .modal-header h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px; font-weight: 700;
+  }
+  .modal-close {
+    background: none; border: none; cursor: pointer;
+    color: #999; font-size: 22px; line-height: 1;
+  }
+  .modal-body { padding: 24px 28px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: #555; margin-bottom: 6px; text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .form-group input,
+  .form-group select {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid #D5D5DA; border-radius: 8px;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 14px; color: var(--primary-text);
+    outline: none; transition: border .15s;
+  }
+  .form-group input:focus,
+  .form-group select:focus { border-color: var(--teal); }
+  .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
+  .upload-zone {
+    border: 2px dashed #D0D0D8; border-radius: 10px;
+    padding: 32px; text-align: center;
+    color: #888; cursor: pointer; transition: all .15s;
+  }
+  .upload-zone:hover { border-color: var(--teal); background: rgba(5,225,199,.03); }
+
+  /* ── Multi-select Languages ── */
+  .multiselect { position: relative; }
+  .multiselect-trigger {
+    width: 100%; min-height: 42px; padding: 6px 14px;
+    border: 1px solid #D5D5DA; border-radius: 8px;
+    font-family: 'Noto Sans', sans-serif; font-size: 13px;
+    color: var(--primary-text); background: var(--white);
+    display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    cursor: pointer; transition: border .15s;
+  }
+  .multiselect-trigger:focus-within,
+  .multiselect.open .multiselect-trigger { border-color: var(--teal); }
+  .multiselect-trigger .placeholder { color: #999; }
+  .lang-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(1,71,59,.08); color: var(--dark-green);
+    font-size: 12px; font-weight: 600;
+    padding: 3px 8px; border-radius: 5px;
+  }
+  .lang-tag .remove-lang {
+    cursor: pointer; font-size: 14px; line-height: 1;
+    color: rgba(1,71,59,.45); margin-left: 2px;
+  }
+  .lang-tag .remove-lang:hover { color: var(--dark-green); }
+  .multiselect-dropdown {
+    display: none;
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--white); border: 1px solid #D5D5DA;
+    border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.1);
+    z-index: 10; max-height: 240px; overflow-y: auto;
+  }
+  .multiselect.open .multiselect-dropdown { display: block; }
+  .ms-search {
+    padding: 10px 14px; border-bottom: 1px solid #ECECF0;
+    position: sticky; top: 0; background: var(--white); z-index: 1;
+  }
+  .ms-search input {
+    width: 100%; border: none; outline: none;
+    font-family: 'Noto Sans', sans-serif; font-size: 13px;
+    color: var(--primary-text);
+  }
+  .ms-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; cursor: pointer; font-size: 13px;
+    transition: background .1s;
+  }
+  .ms-option:hover { background: var(--off-white); }
+  .ms-option.selected { background: rgba(1,71,59,.05); }
+  .ms-option .ms-check {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 1.5px solid #C0C0C8; display: flex;
+    align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all .12s;
+  }
+  .ms-option.selected .ms-check {
+    background: var(--dark-green); border-color: var(--dark-green);
+  }
+  .ms-option.selected .ms-check::after {
+    content: ''; width: 8px; height: 5px;
+    border-left: 2px solid var(--white);
+    border-bottom: 2px solid var(--white);
+    transform: rotate(-45deg); margin-top: -2px;
+  }
+  .ms-option .ms-label { font-weight: 500; }
+  .ms-option .ms-code { color: #999; font-size: 11.5px; margin-left: auto; }
+  .upload-zone svg { width: 36px; height: 36px; color: #BBB; margin-bottom: 8px; }
+  .upload-zone p { font-size: 13px; font-weight: 500; }
+  .upload-zone small { font-size: 11px; color: #AAA; }
+
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: 10px;
+    padding: 18px 28px; border-top: 1px solid #E8E8EC;
+  }
+
+  /* ── Right Panel (Study Detail) ── */
+  .detail-panel {
+    display: none;
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: 420px; background: var(--white);
+    box-shadow: -8px 0 32px rgba(0,0,0,.08);
+    z-index: 150;
+    flex-direction: column;
+  }
+  .detail-panel.open { display: flex; }
+  .detail-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px; border-bottom: 1px solid #E8E8EC;
+  }
+  .detail-header h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px; font-weight: 700;
+  }
+  .detail-close { background: none; border: none; cursor: pointer; color: #999; font-size: 20px; }
+  .detail-body { padding: 24px; flex:1; overflow-y: auto; }
+  .detail-field { margin-bottom: 16px; }
+  .detail-field label {
+    font-size: 10.5px; font-weight: 600; color: #999;
+    text-transform: uppercase; letter-spacing: .6px;
+    display: block; margin-bottom: 4px;
+  }
+  .detail-field .value { font-size: 14px; font-weight: 500; }
+
+  .detail-docs-list { margin-top: 20px; }
+  .detail-docs-list h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 12px; color: var(--dark-green);
+  }
+  .detail-doc-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border: 1px solid #ECECF0;
+    border-radius: 8px; margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .detail-doc-item .doc-name { font-weight: 500; }
+  .detail-doc-item .doc-meta { font-size: 11px; color: #999; }
+
+  /* ── Source pill ── */
+  .source-pill {
+    font-size: 10px; font-weight: 600; padding: 2px 8px;
+    border-radius: 4px; text-transform: uppercase; letter-spacing: .3px;
+  }
+  .source-viva { background: #E8F4FD; color: #0A6DC2; }
+  .source-manual { background: #F5F5F7; color: #777; }
+  .source-metadata { background: #F0EDFF; color: #5B4FCF; }
+
+  /* ── Download & Action Buttons in table ── */
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 6px; font-size: 11.5px;
+    font-weight: 600; cursor: pointer; border: none;
+    background: rgba(55,156,79,.1); color: var(--green);
+    transition: all .12s; text-decoration: none;
+  }
+  .dl-btn:hover { background: rgba(55,156,79,.18); }
+  .dl-btn svg { width: 14px; height: 14px; }
+
+  /* ── Document Detail sections in panel ── */
+  .panel-section {
+    margin-top: 20px; padding-top: 16px;
+    border-top: 1px solid #ECECF0;
+  }
+  .panel-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px; font-weight: 700; color: var(--dark-green);
+    text-transform: uppercase; letter-spacing: .6px;
+    margin-bottom: 12px;
+  }
+  .panel-date-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid #F5F5F7;
+    font-size: 13px;
+  }
+  .panel-date-row:last-child { border-bottom: none; }
+  .panel-date-label { color: #888; font-weight: 500; }
+  .panel-date-val { font-weight: 600; }
+
+  .panel-file-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border: 1px solid #ECECF0;
+    border-radius: 8px; margin-bottom: 8px;
+    font-size: 13px; transition: background .1s;
+  }
+  .panel-file-item:hover { background: var(--off-white); }
+  .panel-file-left { display: flex; align-items: center; gap: 10px; }
+  .panel-file-icon {
+    width: 32px; height: 32px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+  }
+  .panel-file-icon.docx { background: #E3F0FF; color: #1565C0; }
+  .panel-file-icon.pdf { background: #FFEBE9; color: #C62828; }
+  .panel-file-icon.cert { background: #FFF8E1; color: #F57F17; }
+  .panel-file-name { font-weight: 500; }
+  .panel-file-meta { font-size: 11px; color: #999; }
+  .panel-dl-icon {
+    cursor: pointer; color: #999; transition: color .12s;
+  }
+  .panel-dl-icon:hover { color: var(--blue); }
+
+  .cert-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px; border-radius: 8px;
+    background: rgba(255,179,0,.08); border: 1px solid rgba(255,179,0,.25);
+    font-size: 13px; font-weight: 600; color: #8B6914;
+    cursor: pointer; transition: all .12s; text-decoration: none;
+  }
+  .cert-link:hover { background: rgba(255,179,0,.14); }
+  .cert-link svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* ── Study Page ── */
+  .page { display: none; }
+  .page.active-page-view { display: block; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; color: var(--blue);
+    cursor: pointer; margin-bottom: 20px; text-decoration: none;
+  }
+  .back-link:hover { text-decoration: underline; }
+  .back-link svg { width: 16px; height: 16px; }
+
+  .study-hero {
+    background: var(--white); border-radius: 14px;
+    border: 1px solid #E8E8EC; padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  .study-hero-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .study-hero h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px; font-weight: 700; color: var(--primary-text);
+  }
+  .study-hero .study-id-label {
+    font-size: 13px; color: #888; margin-top: 4px;
+  }
+  .study-meta-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .study-meta-item label {
+    font-size: 10.5px; font-weight: 600; color: #999;
+    text-transform: uppercase; letter-spacing: .6px;
+    display: block; margin-bottom: 4px;
+  }
+  .study-meta-item .meta-val {
+    font-size: 14px; font-weight: 500; color: var(--primary-text);
+  }
+
+  .study-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px; font-weight: 700; margin-bottom: 16px;
+  }
+
+  .study-stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .lang-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 28px;
+  }
+  .lang-card {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--white); border: 1px solid #E8E8EC;
+    border-radius: 8px; padding: 10px 16px; min-width: 180px;
+  }
+  .lang-card .lc-code {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 13px; color: var(--dark-green);
+    background: rgba(1,71,59,.07); padding: 4px 8px; border-radius: 5px;
+  }
+  .lang-card .lc-name { font-size: 13px; font-weight: 500; }
+  .lang-card .lc-status { margin-left: auto; }
+
+  .timeline-list { margin-bottom: 28px; }
+  .timeline-item {
+    display: flex; gap: 16px; padding: 12px 0;
+    border-bottom: 1px solid #F0F0F4;
+    font-size: 13px;
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-date {
+    color: #999; font-size: 12px; min-width: 100px;
+    font-weight: 500;
+  }
+  .timeline-text { font-weight: 500; }
+  .timeline-text span { color: #888; font-weight: 400; }
+
+  /* ── PHI compliance placeholder (mock) ── */
+  #phiCompliancePage { display: none; }
+  #phiCompliancePage .phi-mock-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid #E8E8EC;
+    padding: 28px 32px;
+    max-width: 640px;
+    margin-top: 8px;
+  }
+  #phiCompliancePage .phi-mock-card h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary-text);
+    margin-bottom: 12px;
+  }
+  #phiCompliancePage .phi-mock-card p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #555;
+    margin-bottom: 12px;
+  }
+  #phiCompliancePage .phi-mock-card .phi-mock-note {
+    font-size: 12px;
+    color: #888;
+    padding: 12px 14px;
+    background: var(--off-white);
+    border-radius: 8px;
+    border-left: 3px solid var(--teal);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1200px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .study-meta-grid { grid-template-columns: repeat(2, 1fr); }
+    .study-stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-icon">W</div>
+    <div>
+      <span>Welocalize</span>
+      <small>Client Portal</small>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <div class="nav-item active" data-nav="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" data-nav="studies">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Studies
+      <span class="nav-badge">24</span>
+    </div>
+    <div class="nav-item" data-nav="active-projects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Active Projects
+      <span class="nav-badge">12</span>
+    </div>
+    <div class="nav-item" data-nav="deliveries">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Deliveries
+    </div>
+
+    <div class="nav-section-label">Compliance</div>
+    <div class="nav-item" data-nav="phi" onclick="openPhiComplianceMock()" title="PHI scan and redaction for clinical documents">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      PHI detection
+    </div>
+
+    <div class="nav-section-label">Connectors</div>
+    <div class="nav-item" data-nav="veeva">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      Veeva Vault
+      <span style="margin-left:auto;font-size:10px;color:var(--green);">Connected</span>
+    </div>
+    <div class="nav-item" data-nav="metadata">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      Metadata CTMS
+      <span style="margin-left:auto;font-size:10px;color:var(--green);">Connected</span>
+    </div>
+
+    <div class="nav-section-label">Settings</div>
+    <div class="nav-item" data-nav="team">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Team & Access
+    </div>
+    <div class="nav-item" data-nav="preferences">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Preferences
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="avatar">SC</div>
+    <div class="user-info">
+      <strong>Sara Chen</strong>
+      <span>Fortrea Clinical</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ─── MAIN CONTENT ─── -->
+<div class="main">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div>
+        <div class="breadcrumb"><a href="#">Portal</a> / Clinical</div>
+        <h1>Clinical Dashboard</h1>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by study, document, or language...">
+      </div>
+      <button class="header-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <div id="dashboardMain">
+
+    <!-- Module Tabs -->
+    <div class="module-tabs">
+      <div class="module-tab active">Clinical</div>
+      <div class="module-tab disabled">Pharmacovigilance</div>
+      <div class="module-tab disabled">Regulatory</div>
+      <div class="module-tab disabled">Med Devices</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card stat-accent-1">
+        <span class="stat-label">Active Studies</span>
+        <span class="stat-value">24</span>
+        <span class="stat-sub"><span class="up">+3</span> this quarter</span>
+      </div>
+      <div class="stat-card stat-accent-2">
+        <span class="stat-label">Documents In Translation</span>
+        <span class="stat-value">67</span>
+        <span class="stat-sub">across 4 vendors</span>
+      </div>
+      <div class="stat-card stat-accent-3">
+        <span class="stat-label">Avg. Turnaround</span>
+        <span class="stat-value">4.2d</span>
+        <span class="stat-sub"><span class="down">+0.3d</span> vs last month</span>
+      </div>
+      <div class="stat-card stat-accent-4">
+        <span class="stat-label">Delivered This Month</span>
+        <span class="stat-value">143</span>
+        <span class="stat-sub"><span class="up">+12%</span> vs prior month</span>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <h2>Study Documents</h2>
+      <div class="action-group">
+        <button class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Export
+        </button>
+        <button class="btn btn-primary" onclick="toggleModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Request
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-chip active-filter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        All Statuses
+      </div>
+      <div class="filter-chip">Vendor: All</div>
+      <div class="filter-chip">Source: All</div>
+      <div class="filter-chip">Language: All</div>
+      <div class="filter-chip">Study: All</div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Study / Protocol</th>
+            <th>Document</th>
+            <th>Source</th>
+            <th>Languages</th>
+            <th>Vendor</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-doc="Main ICF v3.2" data-doctype="Informed Consent Form" data-study="NVT-2025-0847" data-vendor="Welocalize" data-source="Veeva" data-status="In Translation" data-langs="DE, FR, IT, ES, PT +8 more" data-pct="65" data-start="2026-03-10" data-due="2026-04-02" data-delivered="" data-version="3.2" data-wordcount="14,200" data-filetype="docx" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('NVT-2025-0847')">NVT-2025-0847</a></td>
+            <td class="doc-type">Main ICF v3.2<small>Informed Consent Form</small></td>
+            <td><span class="source-pill source-viva">Veeva</span></td>
+            <td class="langs"><strong>EN</strong> → DE, FR, IT, ES, PT <span class="lang-count">+8</span></td>
+            <td><span class="vendor-tag vendor-wl">Welocalize</span></td>
+            <td><span class="status-badge status-in-progress"><span class="dot"></span>In Translation</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:65%;background:var(--blue)"></div></div><span class="progress-pct">65%</span></div></td>
+            <td></td>
+          </tr>
+          <tr data-doc="Protocol Amendment 4" data-doctype="Clinical Protocol" data-study="NVT-2025-0847" data-vendor="Transperfect" data-source="Veeva" data-status="Client Review" data-langs="DE, FR, JA +5 more" data-pct="85" data-start="2026-03-05" data-due="2026-03-28" data-delivered="" data-version="4.0" data-wordcount="8,750" data-filetype="docx" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('NVT-2025-0847')">NVT-2025-0847</a></td>
+            <td class="doc-type">Protocol Amendment 4<small>Clinical Protocol</small></td>
+            <td><span class="source-pill source-viva">Veeva</span></td>
+            <td class="langs"><strong>EN</strong> → DE, FR, JA <span class="lang-count">+5</span></td>
+            <td><span class="vendor-tag vendor-tp">Transperfect</span></td>
+            <td><span class="status-badge status-review"><span class="dot"></span>Client Review</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:85%;background:var(--gold)"></div></div><span class="progress-pct">85%</span></div></td>
+            <td></td>
+          </tr>
+          <tr data-doc="Patient Diary" data-doctype="ePRO / eCOA" data-study="FTR-2025-1193" data-vendor="Welocalize" data-source="Metadata" data-status="In Translation" data-langs="ZH-CN, KO, JA" data-pct="40" data-start="2026-03-12" data-due="2026-04-05" data-delivered="" data-version="1.0" data-wordcount="3,400" data-filetype="docx" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('FTR-2025-1193')">FTR-2025-1193</a></td>
+            <td class="doc-type">Patient Diary<small>ePRO / eCOA</small></td>
+            <td><span class="source-pill source-metadata">Metadata</span></td>
+            <td class="langs"><strong>EN</strong> → ZH-CN, KO, JA</td>
+            <td><span class="vendor-tag vendor-wl">Welocalize</span></td>
+            <td><span class="status-badge status-in-progress"><span class="dot"></span>In Translation</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:40%;background:var(--blue)"></div></div><span class="progress-pct">40%</span></div></td>
+            <td></td>
+          </tr>
+          <tr data-doc="Site ICF — Germany" data-doctype="Informed Consent Form" data-study="FTR-2025-1193" data-vendor="Welocalize" data-source="Manual" data-status="Delivered" data-langs="DE" data-pct="100" data-start="2026-02-20" data-due="2026-03-15" data-delivered="2026-03-14" data-version="2.1" data-wordcount="6,800" data-filetype="docx" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('FTR-2025-1193')">FTR-2025-1193</a></td>
+            <td class="doc-type">Site ICF — Germany<small>Informed Consent Form</small></td>
+            <td><span class="source-pill source-manual">Manual</span></td>
+            <td class="langs"><strong>EN</strong> → DE</td>
+            <td><span class="vendor-tag vendor-wl">Welocalize</span></td>
+            <td><span class="status-badge status-delivered"><span class="dot"></span>Delivered</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:var(--green)"></div></div><span class="progress-pct">100%</span></div></td>
+            <td><a class="dl-btn" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</a></td>
+          </tr>
+          <tr data-doc="IB v2.1" data-doctype="Investigator's Brochure" data-study="BGN-2025-0312" data-vendor="LionBridge" data-source="Veeva" data-status="In Translation" data-langs="FR, DE, IT, ES +11 more" data-pct="22" data-start="2026-03-15" data-due="2026-04-18" data-delivered="" data-version="2.1" data-wordcount="42,300" data-filetype="pdf" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('BGN-2025-0312')">BGN-2025-0312</a></td>
+            <td class="doc-type">IB v2.1<small>Investigator's Brochure</small></td>
+            <td><span class="source-pill source-viva">Veeva</span></td>
+            <td class="langs"><strong>EN</strong> → FR, DE, IT, ES <span class="lang-count">+11</span></td>
+            <td><span class="vendor-tag vendor-lb">LionBridge</span></td>
+            <td><span class="status-badge status-in-progress"><span class="dot"></span>In Translation</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:22%;background:var(--blue)"></div></div><span class="progress-pct">22%</span></div></td>
+            <td></td>
+          </tr>
+          <tr data-doc="Clinical Study Report" data-doctype="CSR" data-study="SYN-2024-2210" data-vendor="Welocalize" data-source="Veeva" data-status="Delivered" data-langs="JA, ZH-CN" data-pct="100" data-start="2026-02-18" data-due="2026-03-10" data-delivered="2026-03-08" data-version="1.0" data-wordcount="28,500" data-filetype="pdf" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('SYN-2024-2210')">SYN-2024-2210</a></td>
+            <td class="doc-type">Clinical Study Report<small>CSR</small></td>
+            <td><span class="source-pill source-viva">Veeva</span></td>
+            <td class="langs"><strong>EN</strong> → JA, ZH-CN</td>
+            <td><span class="vendor-tag vendor-wl">Welocalize</span></td>
+            <td><span class="status-badge status-delivered"><span class="dot"></span>Delivered</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:var(--green)"></div></div><span class="progress-pct">100%</span></div></td>
+            <td><a class="dl-btn" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</a></td>
+          </tr>
+          <tr data-doc="Participant Info Sheet" data-doctype="PIS" data-study="BGN-2025-0312" data-vendor="Local Vendor" data-source="Manual" data-status="Submitted" data-langs="PT-BR, ES-419" data-pct="5" data-start="2026-03-22" data-due="2026-04-12" data-delivered="" data-version="1.0" data-wordcount="5,100" data-filetype="docx" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('BGN-2025-0312')">BGN-2025-0312</a></td>
+            <td class="doc-type">Participant Info Sheet<small>PIS</small></td>
+            <td><span class="source-pill source-manual">Manual</span></td>
+            <td class="langs"><strong>EN</strong> → PT-BR, ES-419</td>
+            <td><span class="vendor-tag vendor-local">Local Vendor</span></td>
+            <td><span class="status-badge status-submitted"><span class="dot"></span>Submitted</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:5%;background:#999"></div></div><span class="progress-pct">5%</span></div></td>
+            <td></td>
+          </tr>
+          <tr data-doc="Lab Manual" data-doctype="Lab/Reference" data-study="NVT-2025-0847" data-vendor="Welocalize" data-source="Veeva" data-status="Queued" data-langs="DE, FR" data-pct="0" data-start="2026-03-22" data-due="2026-04-08" data-delivered="" data-version="1.3" data-wordcount="4,200" data-filetype="docx" onclick="openRowPanel(this)">
+            <td><a class="study-link" onclick="event.stopPropagation();openStudyPage('NVT-2025-0847')">NVT-2025-0847</a></td>
+            <td class="doc-type">Lab Manual<small>Lab/Reference</small></td>
+            <td><span class="source-pill source-viva">Veeva</span></td>
+            <td class="langs"><strong>EN</strong> → DE, FR</td>
+            <td><span class="vendor-tag vendor-wl">Welocalize</span></td>
+            <td><span class="status-badge status-pending"><span class="dot"></span>Queued</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%;background:#999"></div></div><span class="progress-pct">0%</span></div></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <span>Showing 1–8 of 67 documents</span>
+        <div class="pagination">
+          <button class="page-btn active-page">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn">9</button>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- #dashboardMain -->
+
+    <div id="phiCompliancePage">
+      <div class="module-tabs">
+        <div class="module-tab active">Clinical</div>
+        <div class="module-tab disabled">Pharmacovigilance</div>
+        <div class="module-tab disabled">Regulatory</div>
+        <div class="module-tab disabled">Med Devices</div>
+      </div>
+      <div class="action-bar">
+        <h2>PHI detection</h2>
+      </div>
+      <div class="phi-mock-card">
+        <h2>Clinical PHI scan &amp; redaction</h2>
+        <p>
+          This area is reserved for the <strong>PHI detection</strong> service (e.g. Amazon Comprehend Medical):
+          upload clinical text or Word documents, review detected entities, and download redacted output or JSON.
+        </p>
+        <p class="phi-mock-note">
+          <strong>Mockup:</strong> Embed your Next.js PHI app here via iframe, deep link, or micro-frontend. Use the sidebar <em>Compliance → PHI detection</em> as the primary entry point.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- .content -->
+
+  <!-- ═══ STUDY PAGE VIEW ═══ -->
+  <div class="content page" id="studyPage">
+    <a class="back-link" onclick="goBackToDashboard()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Dashboard
+    </a>
+
+    <div class="study-hero" id="studyHero">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Study-level stats -->
+    <div class="study-stats-row">
+      <div class="stat-card stat-accent-2">
+        <span class="stat-label">Total Documents</span>
+        <span class="stat-value" id="spDocCount">3</span>
+        <span class="stat-sub">in this study</span>
+      </div>
+      <div class="stat-card stat-accent-3">
+        <span class="stat-label">Avg. Progress</span>
+        <span class="stat-value" id="spAvgProgress">50%</span>
+        <span class="stat-sub">across all documents</span>
+      </div>
+      <div class="stat-card stat-accent-4">
+        <span class="stat-label">Delivered</span>
+        <span class="stat-value" id="spDelivered">0</span>
+        <span class="stat-sub">completed documents</span>
+      </div>
+    </div>
+
+    <!-- Target Languages -->
+    <h3 class="study-section-title">Target Languages</h3>
+    <div class="lang-grid" id="spLangGrid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Documents Table for this study -->
+    <h3 class="study-section-title">Documents</h3>
+    <div class="table-wrap" id="spDocsTable">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Activity Timeline -->
+    <h3 class="study-section-title" style="margin-top:28px;">Recent Activity</h3>
+    <div class="table-wrap" style="padding:4px 20px;">
+      <div class="timeline-list" id="spTimeline">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+</div><!-- .main -->
+
+<!-- ─── NEW REQUEST MODAL ─── -->
+<div class="modal-overlay" id="requestModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>New Translation Request</h3>
+      <button class="modal-close" onclick="toggleModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Clinical Trial / Protocol Number *</label>
+        <input type="text" placeholder="e.g. NVT-2025-0847">
+        <div class="form-hint">This is the only required field. Metadata will be inherited from connected systems when available.</div>
+      </div>
+      <div class="form-group">
+        <label>Document Type</label>
+        <select>
+          <option>Select type (optional)</option>
+          <option>Informed Consent Form (ICF)</option>
+          <option>Clinical Protocol</option>
+          <option>Protocol Amendment</option>
+          <option>Investigator's Brochure (IB)</option>
+          <option>Patient Diary / ePRO</option>
+          <option>Clinical Study Report (CSR)</option>
+          <option>Lab Manual</option>
+          <option>Site-specific Document</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Target Languages</label>
+        <div class="multiselect" id="langSelect">
+          <div class="multiselect-trigger" onclick="toggleLangDropdown(event)">
+            <span class="placeholder" id="langPlaceholder">Select target languages...</span>
+          </div>
+          <div class="multiselect-dropdown">
+            <div class="ms-search"><input type="text" placeholder="Search languages..." oninput="filterLangs(this.value)"></div>
+            <div id="langOptions"></div>
+          </div>
+        </div>
+        <div class="form-hint">Select one or more target languages. Leave blank if language list is embedded in document metadata.</div>
+      </div>
+      <div class="form-group">
+        <label>Upload Documents</label>
+        <div class="upload-zone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p>Drag files here or click to browse</p>
+          <small>.docx, .pdf, .xlsx, .xml — Max 50 MB per file</small>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <input type="text" placeholder="Any special instructions for this request">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="toggleModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="toggleModal()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DOCUMENT DETAIL SIDE PANEL (row click) ─── -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <h3 id="panelTitle">Document Details</h3>
+    <button class="detail-close" onclick="closePanel()">&times;</button>
+  </div>
+  <div class="detail-body" id="panelBody">
+    <!-- Populated dynamically -->
+  </div>
+</div>
+
+<script>
+  /* ═══════════════════════════════════════════
+     STUDY DATA (mock)
+     ═══════════════════════════════════════════ */
+  const STUDIES = {
+    'NVT-2025-0847': {
+      sponsor: 'Novartis AG', area: 'Oncology — Phase III',
+      source: 'Veeva Vault', startDate: '2025-01-14',
+      langs: ['DE','FR','IT','ES','PT','JA','ZH-CN','KO','PL','NL','SV','DA','HU'],
+      vendors: ['Welocalize','Transperfect'],
+      timeline: [
+        { date: 'Mar 22, 2026', text: 'Lab Manual <span>queued for translation</span>' },
+        { date: 'Mar 20, 2026', text: 'Protocol Amendment 4 <span>sent to client review</span>' },
+        { date: 'Mar 15, 2026', text: 'Main ICF v3.2 <span>translation in progress — 65%</span>' },
+        { date: 'Mar 10, 2026', text: 'Main ICF v3.2 <span>received via Veeva connector</span>' },
+        { date: 'Feb 28, 2026', text: 'Study <span>created in portal</span>' },
+      ]
+    },
+    'FTR-2025-1193': {
+      sponsor: 'Fortrea Inc.', area: 'Immunology — Phase II',
+      source: 'Metadata CTMS', startDate: '2025-03-02',
+      langs: ['ZH-CN','KO','JA','DE'],
+      vendors: ['Welocalize'],
+      timeline: [
+        { date: 'Mar 21, 2026', text: 'Site ICF — Germany <span>delivered</span>' },
+        { date: 'Mar 18, 2026', text: 'Patient Diary <span>translation in progress — 40%</span>' },
+        { date: 'Mar 05, 2026', text: 'Study <span>created in portal</span>' },
+      ]
+    },
+    'BGN-2025-0312': {
+      sponsor: 'Biogen Inc.', area: 'Neurology — Phase III',
+      source: 'Veeva Vault', startDate: '2025-02-10',
+      langs: ['FR','DE','IT','ES','PT-BR','ES-419','JA','ZH-CN','KO','PL','NL','SV','DA','HU','RU'],
+      vendors: ['LionBridge','Local Vendor'],
+      timeline: [
+        { date: 'Mar 23, 2026', text: 'Participant Info Sheet <span>submitted by requester</span>' },
+        { date: 'Mar 19, 2026', text: 'IB v2.1 <span>translation in progress — 22%</span>' },
+        { date: 'Mar 01, 2026', text: 'Study <span>created in portal</span>' },
+      ]
+    },
+    'SYN-2024-2210': {
+      sponsor: 'Syneos Health', area: 'Cardiology — Phase II',
+      source: 'Veeva Vault', startDate: '2024-11-18',
+      langs: ['JA','ZH-CN'],
+      vendors: ['Welocalize'],
+      timeline: [
+        { date: 'Mar 12, 2026', text: 'Clinical Study Report <span>delivered</span>' },
+        { date: 'Feb 20, 2026', text: 'Clinical Study Report <span>translation started</span>' },
+        { date: 'Nov 18, 2024', text: 'Study <span>created in portal</span>' },
+      ]
+    }
+  };
+
+  /* ═══ Page Navigation ═══ */
+  const dashboardPage = document.querySelector('.content:not(.page)');
+  const studyPageEl   = document.getElementById('studyPage');
+
+  function setNavActive(navKey) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const el = document.querySelector('.nav-item[data-nav="' + navKey + '"]');
+    if (el) el.classList.add('active');
+  }
+
+  function showDashboardMainView() {
+    const dm = document.getElementById('dashboardMain');
+    const phi = document.getElementById('phiCompliancePage');
+    if (dm) dm.style.display = '';
+    if (phi) phi.style.display = 'none';
+  }
+
+  function openPhiComplianceMock() {
+    closePanel();
+    const dashboardMain = document.getElementById('dashboardMain');
+    const phiPage = document.getElementById('phiCompliancePage');
+    studyPageEl.classList.remove('active-page-view');
+    dashboardPage.style.display = '';
+    if (dashboardMain) dashboardMain.style.display = 'none';
+    if (phiPage) phiPage.style.display = 'block';
+    document.querySelector('.breadcrumb').innerHTML = '<a href="#" onclick="goBackToDashboard();return false;">Portal</a> / <a href="#" onclick="goBackToDashboard();return false;">Clinical</a> / Compliance';
+    document.querySelector('.header-left h1').textContent = 'PHI detection';
+    setNavActive('phi');
+  }
+
+  function openStudyPage(studyId) {
+    closePanel();
+    showDashboardMainView();
+    const study = STUDIES[studyId];
+    if (!study) return;
+
+    // Update header breadcrumb
+    document.querySelector('.breadcrumb').innerHTML = `<a href="#" onclick="goBackToDashboard();return false;">Portal</a> / <a href="#" onclick="goBackToDashboard();return false;">Clinical</a> / ${studyId}`;
+    document.querySelector('.header-left h1').textContent = 'Study Details';
+
+    setNavActive('studies');
+
+    // Populate hero
+    const vendorTags = study.vendors.map(v => {
+      const cls = v === 'Welocalize' ? 'vendor-wl' : v === 'Transperfect' ? 'vendor-tp' : v === 'LionBridge' ? 'vendor-lb' : 'vendor-local';
+      return `<span class="vendor-tag ${cls}">${v}</span>`;
+    }).join(' ');
+    const srcCls = study.source.includes('Veeva') ? 'source-viva' : 'source-metadata';
+
+    document.getElementById('studyHero').innerHTML = `
+      <div class="study-hero-top">
+        <div>
+          <h2>${studyId}</h2>
+          <div class="study-id-label">${study.sponsor} — ${study.area}</div>
+        </div>
+        <button class="btn btn-primary" onclick="toggleModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Request
+        </button>
+      </div>
+      <div class="study-meta-grid">
+        <div class="study-meta-item"><label>Sponsor</label><div class="meta-val">${study.sponsor}</div></div>
+        <div class="study-meta-item"><label>Therapeutic Area</label><div class="meta-val">${study.area}</div></div>
+        <div class="study-meta-item"><label>Connected Source</label><div class="meta-val"><span class="source-pill ${srcCls}">${study.source}</span></div></div>
+        <div class="study-meta-item"><label>Vendors</label><div class="meta-val" style="display:flex;gap:6px;flex-wrap:wrap;">${vendorTags}</div></div>
+      </div>
+    `;
+
+    // Collect docs for this study from the table
+    const allRows = document.querySelectorAll('tbody tr[data-study]');
+    const docs = [];
+    allRows.forEach(r => {
+      if (r.dataset.study === studyId) {
+        docs.push({
+          name: r.dataset.doc, type: r.dataset.doctype,
+          vendor: r.dataset.vendor, source: r.dataset.source,
+          status: r.dataset.status, langs: r.dataset.langs,
+          pct: parseInt(r.dataset.pct),
+          start: r.dataset.start || '', due: r.dataset.due || '',
+          delivered: r.dataset.delivered || '',
+          version: r.dataset.version || '', wordcount: r.dataset.wordcount || '',
+          filetype: r.dataset.filetype || 'docx'
+        });
+      }
+    });
+
+    // Stats
+    document.getElementById('spDocCount').textContent = docs.length;
+    const avgPct = docs.length ? Math.round(docs.reduce((s,d) => s+d.pct, 0) / docs.length) : 0;
+    document.getElementById('spAvgProgress').textContent = avgPct + '%';
+    document.getElementById('spDelivered').textContent = docs.filter(d => d.status === 'Delivered').length;
+
+    // Language grid
+    document.getElementById('spLangGrid').innerHTML = study.langs.map(code => `
+      <div class="lang-card">
+        <span class="lc-code">${code}</span>
+        <span class="lc-name">${langName(code)}</span>
+      </div>
+    `).join('');
+
+    // Docs table (clickable rows + download for delivered)
+    document.getElementById('spDocsTable').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Document</th><th>Source</th><th>Languages</th><th>Vendor</th><th>Status</th><th>Progress</th><th></th>
+        </tr></thead>
+        <tbody>${docs.map(d => {
+          const statusCls = d.status === 'Delivered' ? 'status-delivered' : d.status === 'Client Review' ? 'status-review' : d.status === 'Queued' ? 'status-pending' : d.status === 'Submitted' ? 'status-submitted' : 'status-in-progress';
+          const barColor = d.pct >= 100 ? 'var(--green)' : d.status === 'Client Review' ? 'var(--gold)' : d.pct <= 5 ? '#999' : 'var(--blue)';
+          const vendorCls = d.vendor === 'Welocalize' ? 'vendor-wl' : d.vendor === 'Transperfect' ? 'vendor-tp' : d.vendor === 'LionBridge' ? 'vendor-lb' : 'vendor-local';
+          const srcCls2 = d.source === 'Veeva' ? 'source-viva' : d.source === 'Metadata' ? 'source-metadata' : 'source-manual';
+          const dlBtn = d.status === 'Delivered' ? `<a class="dl-btn" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</a>` : '';
+          const dataAttrs = `data-doc="${d.name}" data-doctype="${d.type}" data-study="${studyId}" data-vendor="${d.vendor}" data-source="${d.source}" data-status="${d.status}" data-langs="${d.langs}" data-pct="${d.pct}" data-start="${d.start}" data-due="${d.due}" data-delivered="${d.delivered}" data-version="${d.version}" data-wordcount="${d.wordcount}" data-filetype="${d.filetype}"`;
+          return `<tr ${dataAttrs} onclick="openRowPanel(this)" style="cursor:pointer;">
+            <td class="doc-type">${d.name}<small>${d.type}</small></td>
+            <td><span class="source-pill ${srcCls2}">${d.source}</span></td>
+            <td class="langs"><strong>EN</strong> → ${d.langs}</td>
+            <td><span class="vendor-tag ${vendorCls}">${d.vendor}</span></td>
+            <td><span class="status-badge ${statusCls}"><span class="dot"></span>${d.status}</span></td>
+            <td><div class="progress-mini"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${d.pct}%;background:${barColor}"></div></div><span class="progress-pct">${d.pct}%</span></div></td>
+            <td>${dlBtn}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    `;
+
+    // Timeline
+    document.getElementById('spTimeline').innerHTML = study.timeline.map(t => `
+      <div class="timeline-item">
+        <div class="timeline-date">${t.date}</div>
+        <div class="timeline-text">${t.text}</div>
+      </div>
+    `).join('');
+
+    // Switch pages
+    dashboardPage.classList.remove('active-page-view');
+    dashboardPage.style.display = 'none';
+    studyPageEl.classList.add('active-page-view');
+  }
+
+  function goBackToDashboard() {
+    closePanel();
+    studyPageEl.classList.remove('active-page-view');
+    dashboardPage.style.display = '';
+    dashboardPage.classList.add('active-page-view');
+    showDashboardMainView();
+    document.querySelector('.breadcrumb').innerHTML = '<a href="#">Portal</a> / Clinical';
+    document.querySelector('.header-left h1').textContent = 'Clinical Dashboard';
+    setNavActive('dashboard');
+  }
+
+  /* ═══ Row click → side panel (document detail) ═══ */
+  function openRowPanel(tr) {
+    const d = tr.dataset;
+    const statusCls = d.status === 'Delivered' ? 'status-delivered' : d.status === 'Client Review' ? 'status-review' : d.status === 'Queued' ? 'status-pending' : d.status === 'Submitted' ? 'status-submitted' : 'status-in-progress';
+    const barColor = parseInt(d.pct) >= 100 ? 'var(--green)' : d.status === 'Client Review' ? 'var(--gold)' : parseInt(d.pct) <= 5 ? '#999' : 'var(--blue)';
+    const vendorCls = d.vendor === 'Welocalize' ? 'vendor-wl' : d.vendor === 'Transperfect' ? 'vendor-tp' : d.vendor === 'LionBridge' ? 'vendor-lb' : 'vendor-local';
+    const srcCls = d.source === 'Veeva' ? 'source-viva' : d.source === 'Metadata' ? 'source-metadata' : 'source-manual';
+    const isDelivered = d.status === 'Delivered';
+    const ftIcon = (d.filetype === 'pdf') ? 'pdf' : 'docx';
+    const ftLabel = (d.filetype === 'pdf') ? 'PDF' : 'DOCX';
+
+    // Format dates
+    const fmtDate = (ds) => { if (!ds) return '—'; const dt = new Date(ds+'T00:00:00'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); };
+
+    document.getElementById('panelTitle').textContent = d.doc;
+    document.getElementById('panelBody').innerHTML = `
+      <!-- Basic info -->
+      <div class="detail-field">
+        <label>Document Type</label>
+        <div class="value">${d.doctype}</div>
+      </div>
+      <div class="detail-field">
+        <label>Study</label>
+        <div class="value"><a class="study-link" onclick="openStudyPage('${d.study}')">${d.study}</a></div>
+      </div>
+      <div style="display:flex;gap:16px;">
+        <div class="detail-field" style="flex:1">
+          <label>Version</label>
+          <div class="value">v${d.version || '—'}</div>
+        </div>
+        <div class="detail-field" style="flex:1">
+          <label>Word Count</label>
+          <div class="value">${d.wordcount || '—'}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;">
+        <div class="detail-field" style="flex:1">
+          <label>Source</label>
+          <div class="value"><span class="source-pill ${srcCls}">${d.source}</span></div>
+        </div>
+        <div class="detail-field" style="flex:1">
+          <label>Vendor</label>
+          <div class="value"><span class="vendor-tag ${vendorCls}">${d.vendor}</span></div>
+        </div>
+      </div>
+      <div class="detail-field">
+        <label>Target Languages</label>
+        <div class="value">EN → ${d.langs}</div>
+      </div>
+      <div class="detail-field">
+        <label>Status</label>
+        <div class="value" style="display:flex;align-items:center;gap:14px;">
+          <span class="status-badge ${statusCls}"><span class="dot"></span>${d.status}</span>
+          <div class="progress-bar-bg" style="width:100px;height:6px;"><div class="progress-bar-fill" style="width:${d.pct}%;background:${barColor};"></div></div>
+          <span style="font-weight:700;font-size:13px;">${d.pct}%</span>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="panel-section">
+        <div class="panel-section-title">Timeline</div>
+        <div class="panel-date-row">
+          <span class="panel-date-label">Start Date</span>
+          <span class="panel-date-val">${fmtDate(d.start)}</span>
+        </div>
+        <div class="panel-date-row">
+          <span class="panel-date-label">Due Date</span>
+          <span class="panel-date-val">${fmtDate(d.due)}</span>
+        </div>
+        <div class="panel-date-row">
+          <span class="panel-date-label">Delivery Date</span>
+          <span class="panel-date-val">${isDelivered ? fmtDate(d.delivered) : '<span style="color:#999;">Pending</span>'}</span>
+        </div>
+      </div>
+
+      <!-- Files -->
+      <div class="panel-section">
+        <div class="panel-section-title">Files</div>
+
+        <!-- Source file -->
+        <div class="panel-file-item">
+          <div class="panel-file-left">
+            <div class="panel-file-icon ${ftIcon}">${ftLabel}</div>
+            <div>
+              <div class="panel-file-name">${d.doc} (Source)</div>
+              <div class="panel-file-meta">EN — Original — v${d.version}</div>
+            </div>
+          </div>
+          <svg class="panel-dl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+
+        ${isDelivered ? `
+        <!-- Translated file(s) -->
+        <div class="panel-file-item">
+          <div class="panel-file-left">
+            <div class="panel-file-icon ${ftIcon}">${ftLabel}</div>
+            <div>
+              <div class="panel-file-name">${d.doc} (Translated)</div>
+              <div class="panel-file-meta">${d.langs} — Final</div>
+            </div>
+          </div>
+          <svg class="panel-dl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        ` : ''}
+      </div>
+
+      ${isDelivered ? `
+      <!-- Translation Certificate -->
+      <div class="panel-section">
+        <div class="panel-section-title">Certificate</div>
+        <a class="cert-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
+          Download Translation Certificate
+        </a>
+        <div style="font-size:11px;color:#999;margin-top:6px;">Signed certificate of translation accuracy for regulatory submission.</div>
+      </div>
+      ` : ''}
+
+      <!-- Actions -->
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid #ECECF0;display:flex;gap:10px;">
+        ${isDelivered ? `
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download All
+        </button>
+        ` : ''}
+        <button class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="openStudyPage('${d.study}')">
+          View Full Study
+        </button>
+      </div>
+    `;
+    document.getElementById('detailPanel').classList.add('open');
+  }
+
+  function closePanel() {
+    document.getElementById('detailPanel').classList.remove('open');
+  }
+
+  /* ═══ Helpers ═══ */
+  const LANG_NAMES = {AR:'Arabic',BG:'Bulgarian',CS:'Czech',DA:'Danish',DE:'German',EL:'Greek',ES:'Spanish',
+    'ES-419':'Spanish (LatAm)',FI:'Finnish',FR:'French','FR-CA':'French (Canada)',HE:'Hebrew',HI:'Hindi',
+    HR:'Croatian',HU:'Hungarian',IT:'Italian',JA:'Japanese',KO:'Korean',NL:'Dutch',NO:'Norwegian',
+    PL:'Polish','PT-BR':'Portuguese (Brazil)','PT-PT':'Portuguese (Portugal)',RO:'Romanian',RU:'Russian',
+    SK:'Slovak',SV:'Swedish',TH:'Thai',TR:'Turkish',UK:'Ukrainian',VI:'Vietnamese',
+    'ZH-CN':'Chinese (Simplified)','ZH-TW':'Chinese (Traditional)'};
+  function langName(code) { return LANG_NAMES[code] || code; }
+
+  function toggleModal() {
+    document.getElementById('requestModal').classList.toggle('visible');
+  }
+
+  // Init: show dashboard
+  dashboardPage.classList.add('active-page-view');
+
+  /* ── Language multi-select ── */
+  const LANGUAGES = [
+    { code: 'AR',    name: 'Arabic' },
+    { code: 'BG',    name: 'Bulgarian' },
+    { code: 'CS',    name: 'Czech' },
+    { code: 'DA',    name: 'Danish' },
+    { code: 'DE',    name: 'German' },
+    { code: 'EL',    name: 'Greek' },
+    { code: 'ES',    name: 'Spanish (Spain)' },
+    { code: 'ES-419',name: 'Spanish (LatAm)' },
+    { code: 'FI',    name: 'Finnish' },
+    { code: 'FR',    name: 'French (France)' },
+    { code: 'FR-CA', name: 'French (Canada)' },
+    { code: 'HE',    name: 'Hebrew' },
+    { code: 'HI',    name: 'Hindi' },
+    { code: 'HR',    name: 'Croatian' },
+    { code: 'HU',    name: 'Hungarian' },
+    { code: 'IT',    name: 'Italian' },
+    { code: 'JA',    name: 'Japanese' },
+    { code: 'KO',    name: 'Korean' },
+    { code: 'NL',    name: 'Dutch' },
+    { code: 'NO',    name: 'Norwegian' },
+    { code: 'PL',    name: 'Polish' },
+    { code: 'PT-BR', name: 'Portuguese (Brazil)' },
+    { code: 'PT-PT', name: 'Portuguese (Portugal)' },
+    { code: 'RO',    name: 'Romanian' },
+    { code: 'RU',    name: 'Russian' },
+    { code: 'SK',    name: 'Slovak' },
+    { code: 'SV',    name: 'Swedish' },
+    { code: 'TH',    name: 'Thai' },
+    { code: 'TR',    name: 'Turkish' },
+    { code: 'UK',    name: 'Ukrainian' },
+    { code: 'VI',    name: 'Vietnamese' },
+    { code: 'ZH-CN', name: 'Chinese (Simplified)' },
+    { code: 'ZH-TW', name: 'Chinese (Traditional)' },
+  ];
+
+  let selectedLangs = new Set();
+
+  function renderLangOptions(filter = '') {
+    const container = document.getElementById('langOptions');
+    const q = filter.toLowerCase();
+    container.innerHTML = LANGUAGES
+      .filter(l => !q || l.name.toLowerCase().includes(q) || l.code.toLowerCase().includes(q))
+      .map(l => `
+        <div class="ms-option ${selectedLangs.has(l.code) ? 'selected' : ''}"
+             onclick="toggleLang('${l.code}')">
+          <span class="ms-check"></span>
+          <span class="ms-label">${l.name}</span>
+          <span class="ms-code">${l.code}</span>
+        </div>
+      `).join('');
+  }
+
+  function renderSelectedTags() {
+    const trigger = document.querySelector('#langSelect .multiselect-trigger');
+    const placeholder = document.getElementById('langPlaceholder');
+    // Remove old tags
+    trigger.querySelectorAll('.lang-tag').forEach(t => t.remove());
+    if (selectedLangs.size === 0) {
+      placeholder.style.display = '';
+    } else {
+      placeholder.style.display = 'none';
+      selectedLangs.forEach(code => {
+        const lang = LANGUAGES.find(l => l.code === code);
+        const tag = document.createElement('span');
+        tag.className = 'lang-tag';
+        tag.innerHTML = `${lang.code} <span class="remove-lang" onclick="event.stopPropagation();removeLang('${code}')">&times;</span>`;
+        trigger.appendChild(tag);
+      });
+    }
+  }
+
+  function toggleLang(code) {
+    if (selectedLangs.has(code)) selectedLangs.delete(code);
+    else selectedLangs.add(code);
+    renderLangOptions(document.querySelector('#langSelect .ms-search input').value);
+    renderSelectedTags();
+  }
+
+  function removeLang(code) {
+    selectedLangs.delete(code);
+    renderLangOptions(document.querySelector('#langSelect .ms-search input').value);
+    renderSelectedTags();
+  }
+
+  function toggleLangDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('langSelect').classList.toggle('open');
+  }
+
+  function filterLangs(val) { renderLangOptions(val); }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const ms = document.getElementById('langSelect');
+    if (ms && !ms.contains(e.target)) ms.classList.remove('open');
+  });
+
+  // Initialize
+  renderLangOptions();
+</script>
+</body>
+</html>
