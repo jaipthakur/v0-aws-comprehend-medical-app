@@ -114,20 +114,20 @@ export function PhiResults({ result, onClear }: PhiResultsProps) {
               Redacted text
             </CardTitle>
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" onClick={downloadRedacted}>
-                <Download className="h-4 w-4 mr-1" />
-                Download .txt
-              </Button>
-              <Button size="sm" variant="outline" onClick={downloadPhiApiJson}>
-                <Braces className="h-4 w-4 mr-1" />
-                Download JSON
-              </Button>
               {result.redactedDocxBase64 ? (
                 <Button size="sm" onClick={downloadRedactedDocxOriginalLayout}>
                   <Download className="h-4 w-4 mr-1" />
                   Download .docx (keep layout)
                 </Button>
               ) : null}
+              <Button size="sm" variant="outline" onClick={downloadPhiApiJson}>
+                <Braces className="h-4 w-4 mr-1" />
+                Download JSON
+              </Button>
+              <Button size="sm" onClick={downloadRedacted}>
+                <Download className="h-4 w-4 mr-1" />
+                Download .txt
+              </Button>
               <Button
                 size="sm"
                 variant="secondary"
